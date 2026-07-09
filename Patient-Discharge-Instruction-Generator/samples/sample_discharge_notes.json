@@ -1,0 +1,8 @@
+[
+  {"scenario":"Post-surgery (appendectomy)",
+   "note":"Pt 34yo M s/p laparoscopic appendectomy. Uncomplicated. POD1. Rx: amoxicillin-clavulanate 875mg PO BID x7d, ibuprofen 400mg TID PRN. Diet: soft 48h. No heavy lifting >10lbs x2 weeks. F/u surgery 2 weeks. Return if fever >38.5C, worsening pain, wound discharge."},
+  {"scenario":"Diabetic management",
+   "note":"62yo F admitted hyperglycaemia BGL 18.4. HbA1c 10.2%. Started metformin 500mg BD, glipizide 5mg OD with meals. Carb counting education. Discharged BGL 7.2. GP f/u 1 week. Diabetes nurse referral placed. Monitor for hypoglycaemia (shaking, sweating, confusion)."},
+  {"scenario":"Respiratory infection",
+   "note":"45yo F community-acquired pneumonia RLL consolidation. IV ceftriaxone x3d inpatient, switched oral amoxicillin 500mg TID x7d. O2 sats 97% RA at discharge. Advised rest, fluids, no smoking. Return if SOB worsens, fever returns, or haemoptysis."}
+]
