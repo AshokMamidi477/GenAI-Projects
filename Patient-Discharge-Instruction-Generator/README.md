@@ -2,7 +2,7 @@
 
 ![Level](https://img.shields.io/badge/Level-Beginner-green)
 ![Industry](https://img.shields.io/badge/Industry-Healthcare-blue)
-![Stack](https://img.shields.io/badge/Stack-Claude%20%7C%20FastAPI%20%7C%20React-orange)
+![Stack](https://img.shields.io/badge/Stack-Gemini%20%7C%20FastAPI%20%7C%20React-orange)
 
 ## Business Problem
 40-80% of medical information given at discharge is forgotten immediately. Clinical notes are
@@ -20,14 +20,14 @@ patient instructions at a configurable reading level (5th grade / 8th grade / ad
 graph TD
     A[Nurse pastes note] --> B[React Frontend]
     B --> C[POST /generate-instructions]
-    C --> D[Claude API - structured plain language]
+    C --> D[Gemini API - structured plain language]
     D --> E[Pydantic 5-section response]
     E --> F[React instruction card]
     F --> G[Print to PDF]
 ```
 
 ## Folder Structure
-```
+```text
 project-6-patient-discharge-instruction-generator/
 ├── backend/
 │   ├── main.py
@@ -93,8 +93,8 @@ touch requirements.txt .env.example .env
 **1.3 — Install Python dependencies**
 
 `requirements.txt`:
-```
-Google Gemini
+```text
+google-generativeai>=0.4.0
 fastapi>=0.110.0
 uvicorn>=0.29.0
 pydantic>=2.0.0
@@ -143,26 +143,26 @@ cd frontend && npm install
 **1.5 — Configure environment variables**
 
 `.env.example`:
-```
-GOOGLE_API_KEY=sk-ant-your-key-here
+```text
+GEMINI_API_KEY=your-gemini-api-key-here
 ```
 
 ```bash
 cp .env.example .env
 ```
 
-**GOOGLE_API_KEY** → Go to [console.google.com](https://console.google.com) → API Keys → Create Key.
+**GEMINI_API_KEY** → Go to [Google AI Studio](https://aistudio.google.com/app/apikey) → Create API key.
 
 ---
 
 ### Step 2: Understand the Folder Structure
 
-```
+```text
 project-06-patient-discharge-instruction-generator/
 ├── backend/
 │   ├── __init__.py    ← makes backend/ a Python package
 │   ├── main.py        ← FastAPI server with one POST endpoint
-│   ├── generator.py   ← calls Claude API and parses the response
+│   ├── generator.py   ← calls Gemini API and parses the response
 │   └── models.py      ← Pydantic schemas for request and response
 ├── frontend/
 │   ├── package.json   ← npm configuration
@@ -214,7 +214,7 @@ class InstructionResponse(BaseModel):
 ### Step 4: Build the Generator (`backend/generator.py`)
 
 ```python
-"""generator.py — Claude prompt and response parsing"""
+"""generator.py — Gemini prompt and response parsing"""
 import json, os
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -222,13 +222,9 @@ from backend.models import InstructionResponse, Medication
 
 load_dotenv()
 genai.configure(
-    api_key=os.getenv("GOOGLE_API_KEY")
+    api_key=os.getenv("GEMINI_API_KEY")
 )
-```
 
-**Few-shot examples for each reading level:**
-
-```python
 EXAMPLES = {
     "5th grade": "You had an infection. The doctors gave you medicine to make it better.",
     "8th grade": "You were treated for a stomach infection. You received fluids and antibiotics.",
@@ -236,11 +232,11 @@ EXAMPLES = {
 }
 ```
 
-**Why provide examples?** Reading level is subjective. By showing Claude one example sentence per level, you calibrate exactly what "5th grade" means in this medical context — not guessing, not approximating.
+**Why provide examples?** Reading level is subjective. By showing Gemini one example sentence per level, you calibrate exactly what "5th grade" means in this medical context — not guessing, not approximating.
 
 ```python
 def generate_instructions(note, reading_level, patient_name):
-    system = f"""You are a patient education specialist.
+    system_instruction = f"""You are a patient education specialist.
 Reading level: {reading_level}. Example: "{EXAMPLES[reading_level]}"
 Patient name: {patient_name}. Use "you" and "your" throughout.
 
@@ -250,16 +246,18 @@ Return ONLY valid JSON:
 
 CRITICAL: Never invent dosages. Use "as prescribed" if missing."""
 
-    response = client.messages.create(
-        model="claude-3-5-sonnet-20241022",   # Claude's most capable model for nuanced writing
-        max_tokens=1500,
-        system=system,
-        messages=[{"role": "user", "content": f"Note:\n{note}"}]
+    # Using gemini-1.5-pro for nuanced medical writing and high instruction-following capability
+    model = genai.GenerativeModel(
+        model_name="gemini-1.5-pro",
+        system_instruction=system_instruction,
+        generation_config={"response_mime_type": "application/json"}
     )
 
-    raw = json.loads(response.content[0].text)
+    response = model.generate_content(f"Note:\n{note}")
 
-    # Normalise medications — Claude might return strings instead of dicts
+    raw = json.loads(response.text)
+
+    # Normalise medications — Gemini might return strings instead of dicts
     raw["medications"] = [
         Medication(**m) if isinstance(m, dict) else Medication(name=str(m))
         for m in raw.get("medications", [])
@@ -268,9 +266,9 @@ CRITICAL: Never invent dosages. Use "as prescribed" if missing."""
     return InstructionResponse(**raw)
 ```
 
-**Why "Never invent dosages"?** This is the most critical safety rule. If the discharge note says "ibuprofen" but doesn't specify the dose, Claude must not make one up. Making up a dose could harm a patient. `"as prescribed"` tells the patient to follow the label/pharmacist.
+**Why "Never invent dosages"?** This is the most critical safety rule. If the discharge note says "ibuprofen" but doesn't specify the dose, Gemini must not make one up. Making up a dose could harm a patient. `"as prescribed"` tells the patient to follow the label/pharmacist.
 
-**Why `claude-3-5-sonnet` instead of Haiku?** Plain-language medical writing requires high quality. Haiku is fast and cheap but may oversimplify or mistranslate clinical terms. Sonnet's quality is worth the extra cost for patient-facing content.
+**Why `gemini-1.5-pro` instead of `gemini-1.5-flash`?** Plain-language medical writing requires high quality and zero hallucinations. `gemini-1.5-flash` is fast and cheap but may oversimplify clinical terms. Pro's quality is worth the extra latency for patient-facing content. We also use `response_mime_type: application/json` to guarantee a clean JSON object.
 
 ---
 
@@ -302,7 +300,7 @@ def generate(req: GenerateRequest):
         raise HTTPException(500, str(e))
 ```
 
-**Why validate minimum note length?** Very short notes (e.g. "patient discharged") don't have enough information to generate meaningful instructions. Catching this early gives a clearer error than letting Claude return an empty or nonsensical response.
+**Why validate minimum note length?** Very short notes (e.g. "patient discharged") don't have enough information to generate meaningful instructions. Catching this early gives a clearer error than letting Gemini return an empty or nonsensical response.
 
 ---
 
@@ -447,9 +445,9 @@ export default function App() {
   return (
     <div style={{ fontFamily: 'system-ui', maxWidth: 900, margin: '0 auto', padding: 24 }}>
       <h1>Patient Discharge Instructions</h1>
-      <InputForm onSubmit={handleSubmit} loading={loading} />
+      <InputForm loading="{loading}" onSubmit="{handleSubmit}"/>
       {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-      {data && <InstructionCard data={data} />}
+      {data && <InstructionCard data="{data}"/>}
     </div>
   )
 }
@@ -475,7 +473,7 @@ npm run dev
 Open `http://localhost:5173` in your browser.
 
 **Test with a sample note:**
-```
+```text
 Patient: John Smith, 45M
 Diagnosis: Acute appendicitis, post-appendectomy day 1
 Medications: Amoxicillin 500mg TID x7 days, Ibuprofen 400mg PRN pain
@@ -494,10 +492,10 @@ Select "5th grade" reading level and click Generate. Verify the output uses simp
 |---|---|---|
 | `ModuleNotFoundError: No module named 'backend'` | Running uvicorn from wrong dir | Run from project root: `uvicorn backend.main:app --reload` |
 | `ImportError` on `backend.models` | Missing `__init__.py` | Create empty `backend/__init__.py` |
-| `Google.AuthenticationError` | Wrong API key | Check `Google_API_KEY` in `.env` |
+| `google.api_core.exceptions.InvalidArgument` | Wrong API key | Check `GEMINI_API_KEY` in `.env` |
 | React "Failed to fetch" | Backend not running or CORS | Start the backend first; verify CORS middleware is added |
 | `422 Note too short` | Note has fewer than 50 chars | Paste a real clinical note — not just a few words |
-| `json.JSONDecodeError` | Claude returned non-JSON | Check the system prompt — `Return ONLY valid JSON` must be clear |
+| `json.JSONDecodeError` | Gemini returned non-JSON | Check the `generation_config` is enforcing `application/json` |
 | `npm: command not found` | Node.js not installed | Install Node.js from [nodejs.org](https://nodejs.org) |
 | Blank InstructionCard | API returned null for all fields | The note may be too vague — try a more detailed clinical note |
 
@@ -511,5 +509,5 @@ Select "5th grade" reading level and click Generate. Verify the output uses simp
 
 ## Bonus Extensions
 - QR code linking to digital instructions
-- Language translation via DeepL or Claude
+- Language translation via DeepL or Gemini
 - FHIR Epic API integration
