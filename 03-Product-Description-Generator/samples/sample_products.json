@@ -1,0 +1,17 @@
+[
+  {"title": "Bamboo Wireless Charging Pad", "category": "Electronics",
+   "features": "15W fast charge\nBamboo surface\nUniversal Qi compatible",
+   "audience": "Eco-conscious tech users", "keywords": "sustainable wireless charging"},
+  {"title": "Organic Matcha Green Tea Powder", "category": "Food & Beverage",
+   "features": "Ceremonial grade\n100g tin\nVegan certified",
+   "audience": "Health-conscious adults", "keywords": "matcha organic ceremonial"},
+  {"title": "Minimalist Leather Wallet", "category": "Clothing & Apparel",
+   "features": "Slim profile\nRFID blocking\nFull-grain leather",
+   "audience": "Professionals aged 25-45", "keywords": "slim wallet RFID leather"},
+  {"title": "Kids Coding Robot Kit", "category": "Toys & Games",
+   "features": "Drag-and-drop coding\nAge 6+\nNo screen required",
+   "audience": "Parents of young children", "keywords": "coding kids robot STEM"},
+  {"title": "Standing Desk Converter", "category": "Home & Garden",
+   "features": "Adjustable height\nDual monitor support\nEasy assembly",
+   "audience": "Remote workers", "keywords": "standing desk ergonomic home office"}
+]
