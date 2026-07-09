@@ -1,0 +1,18 @@
+body{font-family:system-ui,sans-serif;background:#f8f9fa;margin:0}
+header{background:#2c3e50;color:#fff;padding:24px 32px}
+header p{opacity:.75;margin-top:6px}
+main{max-width:960px;margin:32px auto;padding:0 16px}
+textarea{width:100%;padding:16px;border:1px solid #dee2e6;border-radius:8px;font-size:14px;font-family:monospace;resize:vertical}
+button{margin-top:12px;padding:12px 32px;background:#2c3e50;color:#fff;border:none;border-radius:6px;font-size:15px;cursor:pointer}
+#summary-bar{margin:24px 0 12px;padding:12px 16px;background:#e9ecef;border-radius:6px;font-weight:500}
+.clause-card{background:#fff;border-left:5px solid #adb5bd;border-radius:6px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.clause-card.Obligation{border-left-color:#0d6efd}
+.clause-card.RiskLiability{border-left-color:#dc3545}
+.clause-card.IPOwnership{border-left-color:#6f42c1}
+.clause-card.Termination{border-left-color:#fd7e14}
+.badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;color:#fff}
+.badge.Obligation{background:#0d6efd}.badge.RiskLiability{background:#dc3545}
+.badge.IPOwnership{background:#6f42c1}.badge.Termination{background:#fd7e14}
+.badge.StandardBoilerplate{background:#adb5bd}
+.clause-text{font-size:13px;color:#495057;line-height:1.6;margin-top:8px}
+.clause-reasoning{font-size:12px;color:#6c757d;margin-top:6px;font-style:italic}

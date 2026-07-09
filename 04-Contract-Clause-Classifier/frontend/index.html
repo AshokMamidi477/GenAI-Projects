@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Contract Clause Classifier</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <header><h1>Contract Clause Classifier</h1>
+  <p>Paste a contract and classify every clause with AI.</p></header>
+  <main>
+    <section>
+      <textarea id="contract-input" placeholder="Paste contract text here..." rows="12"></textarea>
+      <button onclick="classify()">Classify Clauses</button>
+      <div id="loading" style="display:none">Classifying... please wait</div>
+    </section>
+    <section id="summary-bar" style="display:none"><span id="summary-text"></span></section>
+    <section id="results"></section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
