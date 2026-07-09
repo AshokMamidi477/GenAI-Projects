@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "description": "I have had a really bad headache for about 3 days now. I took some paracetamol but it didn't help much. Pain is around 6 out of 10. It gets worse when I look at bright lights.",
+    "expected_triage": "moderate"
+  },
+  {
+    "id": 2,
+    "description": "Chest pain started about an hour ago. It's really severe and my left arm feels numb and tingly. I'm also feeling short of breath.",
+    "expected_triage": "high"
+  },
+  {
+    "id": 3,
+    "description": "I've had a mild cough for about 2 days. No fever, no chest pain, just a bit of a tickle in my throat. Feels like it might be a cold coming on.",
+    "expected_triage": "low"
+  },
+  {
+    "id": 4,
+    "description": "My stomach has been hurting for the past week, roughly a 5 out of 10. It's worse after eating and I've had some nausea but no vomiting. No blood in stool.",
+    "expected_triage": "moderate"
+  },
+  {
+    "id": 5,
+    "description": "I suddenly lost consciousness for a few seconds while standing up. I came around quickly but felt very dizzy and confused for a few minutes. This has never happened to me before.",
+    "expected_triage": "high"
+  }
+]
