@@ -1,273 +1,1050 @@
-Markdown# Project 7 — Hybrid Customer Refund Request Classifier
+# Project 7 — Customer Refund Request Classifier
 
-![Level](https://img.shields.io/badge/Level-Intermediate-orange)
+![Level](https://img.shields.io/badge/Level-Beginner-green)
 ![Industry](https://img.shields.io/badge/Industry-E--commerce-teal)
-![Stack](https://img.shields.io/badge/Stack-Gemini%20%7C%20Scikit--Learn%20%7C%20Gensim%20%7C%20Gmail%20API%20%7C%20Streamlit-blue)
+![Stack](https://img.shields.io/badge/Stack-Google%20Gemini%20%7C%20Gmail%20API%20%7C%20Streamlit-blue)
+![AI](https://img.shields.io/badge/AI-Hybrid%20ML%20%2B%20LLM-purple)
 
-## Business Problem
-E-commerce support teams receive thousands of refund and return requests weekly. Manual triage accounts for 30-40% of handle time. At scale (2,000 emails/day at $0.05/min agent cost) a 60s reduction in triage time per email saves ~$1,700/day.
+---
 
-## Project Objective
-A multi-tier intelligent Python automation pipeline that processes incoming Gmail messages. It matches text using low-latency local **TF-IDF** and **Word2Vec** models, cascades back to a **Google Gemini** LLM fallback for complex or ambiguous cases, exports a sorted CSV queue, applies operational Gmail labels, and renders an interactive Streamlit triage dashboard.
+# Business Problem
 
-## System Architecture
-```mermaid
-graph TD
-    A[Gmail Inbox] --> B[Gmail API OAuth2]
-    B --> C[Email Parser]
-    C --> D{Hybrid Classifier Engine}
-    D -->|Tier 1: Exact Keywords| E1[TF-IDF Vectorizer]
-    D -->|Tier 2: Semantic Intent| E2[Word2Vec Similarity]
-    D -->|Tier 3: Ambiguous Fallback| E3[Google Gemini LLM]
-    E1 --> F[Unified JSON Output]
-    E2 --> F
-    E3 --> F
-    F --> G[pandas CSV Export]
-    G --> H[Streamlit Dashboard UI]
-    H --> I[Gmail Urgency Labels applied]
-Folder Structureproject-7-customer-refund-request-classifier/
+E-commerce support teams receive thousands of refund, return, and complaint emails every week.
+
+Manual email triage requires agents to read every email, identify the request type, determine urgency, and decide the next action.
+
+At scale:
+
+- 2,000 support emails/day
+- Average triage time: 60 seconds/email
+- Agent cost: $0.05/minute
+
+Reducing manual classification time can save significant operational cost while improving customer response time.
+
+---
+
+# Project Objective
+
+Build an AI-powered customer support email classification system that:
+
+✅ Reads customer emails from Gmail using Gmail API  
+✅ Extracts email metadata and content  
+✅ Classifies emails by request type and urgency  
+✅ Uses Machine Learning for fast classification  
+✅ Uses Google Gemini LLM for intelligent fallback classification  
+✅ Generates structured JSON responses  
+✅ Exports classified emails into CSV  
+✅ Applies Gmail labels automatically  
+✅ Provides a Streamlit dashboard for support teams  
+
+---
+
+# AI Classification Approach
+
+This project uses a **Hybrid AI Classification Architecture**.
+
+Instead of depending on a single model, the system combines traditional Machine Learning with Generative AI.
+
+## Classification Flow
+
+             Gmail Inbox
+                  |
+                  |
+          Gmail API OAuth2
+                  |
+                  |
+          Email Extraction
+                  |
+                  |
+      -------------------------
+      |                       |
+      |                       |
+
+ML Classifier Gemini LLM
+(Fast Prediction) (Smart Reasoning)
+| |
+| |
+TF-IDF + Logistic Google Gemini Model
+Regression JSON Classification
+|
+|
+Confidence Check
+|
+|
+High Confidence?
+|
+Yes -------> Return ML Result
+|
+No
+|
+v
+Gemini Classification
+
+
+---
+
+# Why Hybrid AI?
+
+Traditional ML models are fast and inexpensive but have limitations.
+
+## Machine Learning Models Used
+
+### TF-IDF + Logistic Regression
+
+Advantages:
+
+- Fast inference
+- Lightweight
+- Works well with structured training data
+- No API cost
+
+Limitations:
+
+- Does not understand context
+- Cannot reason about customer intent
+- Struggles with new email formats
+- Sensitive to vocabulary changes
+
+
+Example:
+
+
+"I am disappointed. The item arrived broken and I need my money back."
+
+
+A TF-IDF model only sees keywords:
+
+
+broken
+money
+back
+item
+
+
+It does not truly understand:
+
+
+Customer wants refund because product arrived damaged
+
+
+---
+
+## Word2Vec Experiment
+
+Word2Vec embeddings were also tested.
+
+Advantages:
+
+- Understands semantic similarity better than TF-IDF
+- Converts words into numerical vectors
+
+Limitations:
+
+- Requires good training data
+- Sentence meaning is limited
+- Does not understand full email context
+- Gmail emails contain highly variable language
+
+For real-world Gmail classification, Word2Vec alone did not provide enough accuracy.
+
+---
+
+## Google Gemini LLM
+
+Gemini is used as an intelligent fallback classifier.
+
+Advantages:
+
+- Understands customer intent
+- Handles new email patterns
+- Understands context
+- Provides explanations
+- Generates structured JSON output
+
+Example:
+
+Input:
+
+
+Subject:
+My order never arrived
+
+Body:
+I placed an order three weeks ago. Tracking has not updated.
+If this is not fixed I will contact my bank.
+
+
+Gemini understands:
+
+```json
+{
+ "request_type":"Refund",
+ "urgency":"critical",
+ "chargeback_risk":true,
+ "suggested_action":"escalate_to_manager"
+}
+System Architecture
+Key Features
+1. Gmail Integration
+
+The application connects to Gmail using:
+
+Gmail API
+OAuth2 authentication
+Secure token management
+
+Capabilities:
+
+Fetch unread emails
+Extract sender information
+Extract subject
+Extract email body
+Apply labels automatically
+2. AI Email Classification
+
+Each email is classified into:
+
+Request Type
+Refund
+Return
+Exchange
+Complaint
+Other
+Urgency
+Critical
+High
+Medium
+Low
+Suggested Action
+Issue Refund
+Process Return
+Send Replacement
+Escalate Manager
+Standard Reply
+Flag Review
+Risk Detection
+Chargeback Risk
+Legal Threat
+Customer Escalation
+3. Structured AI Output
+
+The system forces AI responses into JSON format.
+
+Example:
+
+{
+ "request_type":"Refund",
+ "urgency":"high",
+ "one_line_summary":"Customer requests refund for delayed order",
+ "suggested_action":"issue_refund",
+ "chargeback_risk":false
+}
+
+Benefits:
+
+Easy database storage
+Easy CSV export
+Easy dashboard visualization
+Reliable automation
+Folder Structure
+Customer-Refund-Request-classification/
+
 ├── src/
-│   ├── gmail_client.py    ← handles Gmail login and fetching emails
-│   ├── classifier.py      ← Hybrid ML (TF-IDF/Word2Vec) + Gemini LLM fallback logic
-│   └── dashboard.py       ← Streamlit UI to view and filter results
+│
+│   ├── classifier.py
+│   │       Main application flow
+│   │
+│   ├── hybrid_classifier.py
+│   │       ML + Gemini decision logic
+│   │
+│   ├── gemini_classifier.py
+│   │       Google Gemini integration
+│   │
+│   ├── gmail_client.py
+│   │       Gmail API OAuth2 handling
+│   │
+│   ├── dashboard.py
+│   │       Streamlit dashboard
+│   │
+│   ├── ML/
+│   │
+│   │   ├── train.py
+│   │   ├── predictor.py
+│   │   ├── classifier.pkl
+│   │   ├── tfidf.pkl
+│   │   ├── word2vec.pkl
+│   │   └── word2vec_classifier.pkl
+│
 ├── tests/
-│   └── test_classifier.py ← automated tests for the classifier pipeline
+│   └── test_classifier.py
+│
 ├── samples/
-│   └── sample_emails.json ← fake email data for testing without Gmail
-├── output/                ← CSV files saved after each run
-├── .env.example           ← template for environment variables
-├── requirements.txt       ← Python packages needed
+│   └── sample_emails.json
+│
+├── output/
+│   └── classified_emails.csv
+│
+├── credentials.json
+├── token.json
+├── .env
+├── .env.example
+├── requirements.txt
 └── README.md
-Setup InstructionsStep 1: Local Environment Configuration1.1 — Create project folder and virtual environmentBashmkdir project-07-customer-refund-request-classifier
-cd project-07-customer-refund-request-classifier
+# Technology Stack
+
+## Programming Language
+
+- Python 3.x
+
+## AI / Machine Learning
+
+- Google Gemini API
+- Scikit-learn
+- TF-IDF Vectorization
+- Logistic Regression
+- Word2Vec Embeddings
+
+## Email Integration
+
+- Gmail API
+- Google OAuth2 Authentication
+
+## Data Processing
+
+- Pandas
+- JSON
+- CSV
+
+## Dashboard
+
+- Streamlit
+
+## Testing
+
+- Pytest
+
+
+---
+
+# Project Setup
+
+## 1. Clone Repository
+
+```bash
+git clone <your-repository-url>
+
+cd Customer-Refund-Request-classification
+2. Create Virtual Environment
+
+Mac/Linux:
+
+python3 -m venv venv
+
+source venv/bin/activate
+
+Windows:
+
 python -m venv venv
-source venv/bin/activate          # Mac/Linux
-venv\Scripts\activate             # Windows
-1.2 — Create the file framework structureBashmkdir src tests samples output
-touch src/classifier.py src/gmail_client.py src/dashboard.py
-touch tests/test_classifier.py
-touch requirements.txt .env.example .env README.md
-1.3 — Install project packagesAdd the exact environment packages to your requirements.txt:Plaintextopenai>=1.30.0
+
+venv\Scripts\activate
+
+A virtual environment keeps project dependencies isolated.
+
+Install Dependencies
+
+Install required packages:
+
+pip install -r requirements.txt
+
+Example requirements:
+
+google-generativeai>=0.8.0
 google-auth>=2.29.0
 google-auth-oauthlib>=1.2.0
 google-api-python-client>=2.125.0
-pandas>=2.0.0
-streamlit>=1.35.0
-python-dotenv>=1.0.0
-pytest>=8.0.0
-scikit-learn>=1.2.0
+
+scikit-learn>=1.4.0
 gensim>=4.3.0
-Then run the installation command:Bashpip install -r requirements.txt
-Note on OpenAI Library Usage: To ensure clean compatibility with the OpenAI SDK structure (openai>=1.30.0), this project configures the client to route directly to Google's official Gemini API endpoint using its base URL translation matrix.1.4 — Configure environment tokensAdd this to .env.example:PlaintextGEMINI_API_KEY=your-gemini-api-key-here
-Copy it to .env and fill in your real API key generated via Google AI Studio:Bashcp .env.example .env
-Step 2: Gmail Client Script (src/gmail_client.py)Python"""gmail_client.py — Gmail OAuth2 and email fetching"""
-import base64, os
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from googleapiclient.discovery import build
 
-SCOPES = ["[https://www.googleapis.com/auth/gmail.modify](https://www.googleapis.com/auth/gmail.modify)"]
+pandas>=2.0.0
 
-def get_service():
-    creds = None
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+streamlit>=1.35.0
 
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-            creds = flow.run_local_server(port=0)
+python-dotenv>=1.0.0
 
-        with open("token.json", "w") as f:
-            f.write(creds.to_json())
+pytest>=8.0.0
+Environment Configuration
 
-    return build("gmail", "v1", credentials=creds)
+Create .env file:
 
-def fetch_unread_emails(service, label="INBOX", max_results=50):
-    results = service.users().messages().list(
-        userId="me", q=f"is:unread label:{label}", maxResults=max_results
-    ).execute()
+GEMINI_API_KEY=your_google_gemini_api_key
 
-    emails = []
-    for msg in results.get("messages", []):
-        full = service.users().messages().get(
-            userId="me", id=msg["id"], format="full"
-        ).execute()
+Example:
 
-        headers = {h["name"]: h["value"] for h in full["payload"]["headers"]}
-        body = _extract_body(full["payload"])
+GEMINI_API_KEY=AIzaSyxxxxxxxxxxxxxxxx
 
-        emails.append({
-            "id": msg["id"],
-            "from": headers.get("From", ""),
-            "subject": headers.get("Subject", ""),
-            "received_at": headers.get("Date", ""),
-            "body": body[:1000]
-        })
-    return emails
+The API key is generated from:
 
-def _extract_body(payload):
-    if payload.get("body", {}).get("data"):
-        return base64.urlsafe_b64decode(payload["body"]["data"]).decode("utf-8", errors="ignore")
+Google AI Studio:
 
-    for part in payload.get("parts", []):
-        if part["mimeType"] == "text/plain" and part.get("body", {}).get("data"):
-            return base64.urlsafe_b64decode(part["body"]["data"]).decode("utf-8", errors="ignore")
-    return ""
+https://aistudio.google.com/
 
-def apply_label(service, message_id, label_name):
-    labels = service.users().labels().list(userId="me").execute().get("labels", [])
-    label_map = {l["name"]: l["id"] for l in labels}
+Never commit .env into GitHub.
 
-    if label_name not in label_map:
-        new = service.users().labels().create(
-            userId="me",
-            body={"name": label_name, "labelListVisibility": "labelShow", "messageListVisibility": "show"}
-        ).execute()
-        label_id = new["id"]
+Add this to .gitignore:
+
+.env
+credentials.json
+token.json
+*.pkl
+__pycache__/
+venv/
+output/
+Gmail API Setup
+
+This project uses Gmail API to read and modify emails.
+
+Step 1: Create Google Cloud Project
+
+Go to:
+
+https://console.cloud.google.com
+
+Create a new project:
+
+Example:
+
+CustomerRefundClassifier
+Step 2: Enable Gmail API
+
+Navigate:
+
+APIs & Services
+        |
+        |
+     Library
+        |
+        |
+    Gmail API
+        |
+        |
+     Enable
+Step 3: Configure OAuth Consent Screen
+
+Navigate:
+
+APIs & Services
+        |
+OAuth Consent Screen
+
+Select:
+
+External
+
+Add:
+
+Application name:
+
+Customer Refund Classifier
+
+Add your Gmail account as a test user.
+
+Step 4: Create OAuth Credentials
+
+Navigate:
+
+APIs & Services
+
+        |
+
+Credentials
+
+        |
+
+Create Credentials
+
+        |
+
+OAuth Client ID
+
+Select:
+
+Desktop Application
+
+Download:
+
+credentials.json
+
+Place it in:
+
+Customer-Refund-Request-classification/
+Running the Application
+Step 1: Train Machine Learning Models
+
+Train TF-IDF classifier:
+
+python src/ML/train.py
+
+This generates:
+
+src/ML/
+
+classifier.pkl
+
+tfidf.pkl
+Step 2: Train Word2Vec Model
+
+Run:
+
+python src/ML/train_word2vec.py
+
+This generates:
+
+src/ML/
+
+word2vec.pkl
+
+word2vec_classifier.pkl
+Step 3: Run Gmail Classifier
+python src/classifier.py
+
+First execution:
+
+Browser opens
+Google authentication required
+User grants Gmail permission
+
+After successful login:
+
+token.json
+
+is created.
+
+Future executions reuse this token.
+
+Classification Flow
+
+Example:
+
+Incoming Gmail:
+
+From:
+customer@gmail.com
+
+Subject:
+Refund needed immediately
+
+Body:
+My order arrived damaged.
+I want my money back.
+Step 1: ML Prediction
+
+TF-IDF model generates:
+
+{
+"request_type":"Refund",
+"confidence":0.72
+}
+Step 2: Confidence Check
+
+Example:
+
+CONFIDENCE_THRESHOLD = 0.90
+
+If:
+
+confidence >= 0.90
+
+Return ML result.
+
+If:
+
+confidence < 0.90
+
+Send email to Gemini.
+
+Step 3: Gemini Classification
+
+Gemini receives:
+
+Subject + Email Body
+
+Returns:
+
+{
+"request_type":"Refund",
+"urgency":"high",
+"one_line_summary":"Damaged product refund request",
+"suggested_action":"issue_refund",
+"chargeback_risk":false
+}
+Hybrid Classifier Logic
+
+Example:
+
+def classify_email(email):
+
+    ml_result = predict_request_type(email)
+
+
+    if ml_result["confidence"] >= 0.90:
+
+        return ml_result
+
+
     else:
-        label_id = label_map[label_name]
 
-    service.users().messages().modify(
-        userId="me", id=message_id, body={"addLabelIds": [label_id]}
-    ).execute()
-Step 3: Classifier Pipeline Script (src/classifier.py)Python"""classifier.py — Hybrid Classification Strategy (TF-IDF + Word2Vec + Gemini Fallback)"""
-import json, os
-from datetime import datetime
-import pandas as pd
-from openai import OpenAI
-from dotenv import load_dotenv
+        return classify_email_with_gemini(email)
+Gmail Label Automation
 
-load_dotenv()
+The application creates Gmail labels:
 
-# Instantiating the OpenAI client using the Google Gemini compatibility layer endpoint
-client = OpenAI(
-    api_key=os.getenv("GEMINI_API_KEY"),
-    base_url="[https://generativelanguage.googleapis.com/v1beta/openai/](https://generativelanguage.googleapis.com/v1beta/openai/)"
-)
+Example:
 
-SYSTEM_PROMPT = """You are a customer support triage specialist.
-Return ONLY valid JSON:
-{"request_type":"Refund"|"Return"|"Exchange"|"Complaint"|"Other",
- "urgency":"critical"|"high"|"medium"|"low",
- "one_line_summary":"max 15 words",
- "suggested_action":"issue_refund"|"process_return"|"send_replacement"|"escalate_to_manager"|"standard_reply"|"flag_for_review",
- "chargeback_risk":true|false}
+Refund-Critical
 
-Urgency: critical=chargeback/legal/review threat, high=not received>14d or wrong item,
-medium=standard request, low=general query"""
+Refund-High
 
-def local_classical_classifier(text):
-    """
-    Simulates local low-cost TF-IDF keyword matrices and Word2Vec semantic lookups.
-    Returns structured dict if clear keyword matching rules pass; otherwise returns None for fallback.
-    """
-    text_lower = text.lower()
-    
-    # 1. TF-IDF Token Check: Catches high-signal threat tokens instantly
-    if "chargeback" in text_lower or "legal" in text_lower or "lawyer" in text_lower:
-        return {
-            "request_type": "Complaint",
-            "urgency": "critical",
-            "one_line_summary": "[TF-IDF Match] Explicit bank chargeback or legal threat flagged.",
-            "suggested_action": "escalate_to_manager",
-            "chargeback_risk": True
-        }
-    
-    # 2. Word2Vec Context Mapping: Maps semantic variants (e.g. swap, different size) 
-    if any(token in text_lower for token in ["swap", "wrong size", "exchange", "alternate"]):
-        return {
-            "request_type": "Exchange",
-            "urgency": "medium",
-            "one_line_summary": "[Word2Vec Match] Intent maps to product size/color replacement.",
-            "suggested_action": "send_replacement",
-            "chargeback_risk": False
-        }
-        
-    return None  # Unconfident local classification -> Pass downstream to LLM
+Refund-Medium
 
-def call_gemini_fallback(from_addr, subject, body):
-    """Hits Google Gemini via standard OpenAI SDK parsing conventions."""
-    content = f"From: {from_addr}\nSubject: {subject}\n\n{body}"
+Refund-Low
 
-    resp = client.chat.completions.create(
-        model="gemini-1.5-flash", 
-        response_format={"type": "json_object"},
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": content}
-        ],
-        temperature=0.1
-    )
-    return json.loads(resp.choices[0].message.content)
+Example:
 
-def classify_email(from_addr, subject, body):
-    combined_text = f"{subject} {body}"
-    
-    # Phase 1 & 2: Local ML Models (TF-IDF & Word2Vec)
-    local_result = local_classical_classifier(combined_text)
-    if local_result:
-        return local_result
-        
-    # Phase 3: Higher-Order Remote Inference Fallback
-    return call_gemini_fallback(from_addr, subject, body)
+Customer email:
 
-def classify_batch(emails):
-    results = []
-    for email in emails:
-        try:
-            classification = classify_email(email["from"], email["subject"], email["body"])
-            results.append({**email, **classification})
-        except Exception as e:
-            results.append({**email, "request_type": "Other", "urgency": "medium",
-                            "one_line_summary": f"Pipeline Processing Error: {e}",
-                            "suggested_action": "flag_for_review", "chargeback_risk": False})
+Threatening chargeback
 
-    df = pd.DataFrame(results)
+Gets label:
 
-    urgency_order = pd.CategoricalDtype(["critical", "high", "medium", "low"], ordered=True)
-    if "urgency" in df.columns:
-        df["urgency"] = df["urgency"].astype(urgency_order)
-        df = df.sort_values("urgency")
+Refund-Critical
+CSV Output
 
-    os.makedirs("output", exist_ok=True)
-    path = f"output/classified_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-    df.to_csv(path, index=False)
-    print(f"Saved hybrid triage data sheet to: {path}")
-    return df
-Step 4: Streamlit UI Script (src/dashboard.py)Python"""dashboard.py — Streamlit operational control support queue"""
-import os, glob
-import pandas as pd
-import streamlit as st
+Every run generates:
 
-st.set_page_config(page_title="Support Queue", page_icon="📧", layout="wide")
-st.title("📧 Customer Support Queue Dashboard (Hybrid TF-IDF/W2V/Gemini Engine)")
+output/classified_20260710.csv
 
-csv_files = sorted(glob.glob("output/*.csv"), reverse=True)
+Example:
 
-if not csv_files:
-    sample = "samples/sample_classified_output.csv"
-    if os.path.exists(sample):
-        df = pd.read_csv(sample)
-        st.caption("Showing verification sandbox mock metrics — run classifier.py to import active files")
-    else:
-        st.warning("No operational data records discovered. Please run your pipeline framework first.")
-        st.stop()
-else:
-    df = pd.read_csv(csv_files[0])
-    st.caption(f"Active Operational Batch Location: `{csv_files[0]}`")
+Email	Type	Urgency	Action
+customer1@gmail.com	Refund	High	Issue Refund
+customer2@gmail.com	Complaint	Critical	Escalate
+customer3@gmail.com	Return	Medium	Process Return
+Streamlit Dashboard
 
-cols = st.columns(4)
-for col, level, icon in zip(cols, ["critical", "high", "medium", "low"], ["🔴", "🟠", "🟡", "🟢"]):
-    count = int((df.get("urgency", "") == level).sum()) if "urgency" in df.columns else 0
-    col.metric(f"{icon} {level.capitalize()}", count)
+Start dashboard:
 
-if st.checkbox("Isolate Direct Chargeback and Financial Threat Profiles") and "chargeback_risk" in df.columns:
-    df = df[df["chargeback_risk"] == True]
+streamlit run src/dashboard.py
 
-st.dataframe(df, use_container_width=True)
-st.download_button("Download Exported CSV", df.to_csv(index=False), "operational_triage_queue.csv", "text/csv")
-Step 5: Troubleshooting MatrixError SignaturePotential Root VectorCorrective Remediationopenai.NotFoundError / API ErrorInvalid fallback target configuration routingEnsure your model target string is set precisely to supported endpoints like gemini-1.5-flash or gemini-2.5-flash.AuthenticationErrorMissing or misaligned environmental variablesVerify .env file lists your correct variable key string as GEMINI_API_KEY=sk-... directly generated within Google AI Studio.ModuleNotFoundErrorOut-of-date runtime environment or active environment omissionsEnsure your python virtual environment is actively initiated, then re-execute pip install -r requirements.txt.Bonus ExtensionsAuto-draft custom draft replies back into Gmail using Gemini context logic.Connect custom Webhook modules to drop critical alerts directly inside engineering Slack workspaces.
+Dashboard provides:
+
+Total emails processed
+Urgency statistics
+Refund count
+Complaint count
+Chargeback risks
+Filter options
+CSV download
+
+Example:
+
+---------------------------------
+
+Critical       High       Medium
+
+  5             12          35
+
+
+---------------------------------
+
+Email Table
+
+
+Sender
+Subject
+Category
+Urgency
+Action
+
+---------------------------------
+Testing
+
+Run:
+
+pytest tests/test_classifier.py -v
+
+Tests cover:
+
+Classification output
+JSON validation
+ML prediction
+Error handling
+
+# Troubleshooting
+
+| Error | Cause | Solution |
+|---|---|---|
+| `ModuleNotFoundError: No module named config` | Python path issue | Run from project root or add `src` to Python path |
+| `FileNotFoundError: credentials.json` | Gmail OAuth file missing | Download OAuth credentials from Google Cloud Console |
+| `403 access_denied` during Gmail login | Gmail account not added as test user | Add your Gmail account under OAuth Consent Screen test users |
+| `GEMINI_API_KEY missing` | Environment variable not loaded | Check `.env` file and call `load_dotenv()` |
+| `401 Unauthorized Gemini API` | Invalid API key | Generate a new key from Google AI Studio |
+| `token.json authentication error` | Expired OAuth token | Delete `token.json` and authenticate again |
+| Dashboard shows no data | Classifier has not generated CSV | Run `python src/classifier.py` first |
+| ML confidence always low | Training data does not represent real emails | Use Gemini fallback or improve dataset |
+| Word2Vec accuracy is low | Limited training examples | Increase domain-specific training data |
+
+
+---
+
+# Machine Learning Model Performance Notes
+
+During development, multiple approaches were evaluated.
+
+## TF-IDF + Logistic Regression
+
+Used as the primary lightweight classifier.
+
+Advantages:
+
+✅ Fast  
+✅ Low resource usage  
+✅ Easy deployment  
+✅ Good baseline accuracy  
+
+
+Challenges:
+
+❌ Limited understanding of intent  
+❌ Depends heavily on keywords  
+❌ Struggles with new customer language  
+
+
+---
+
+## Word2Vec Classifier
+
+Tested as an improvement over TF-IDF.
+
+Advantages:
+
+✅ Captures word relationships  
+✅ Better semantic representation  
+
+
+Challenges:
+
+❌ Requires more training data  
+❌ Does not understand complete email context  
+❌ Customer emails contain many unseen phrases  
+
+
+For Gmail-based customer support emails, Word2Vec alone was not sufficient.
+
+
+---
+
+## Gemini LLM Classification
+
+Used for complex cases.
+
+Advantages:
+
+✅ Understands context  
+✅ Handles unseen email patterns  
+✅ Detects customer emotion  
+✅ Detects escalation risk  
+✅ Produces structured responses  
+
+
+The final architecture combines:
+
+
+Fast ML Prediction
++
+LLM Reasoning
+=
+Production Hybrid AI System
+
+
+---
+
+# Security Considerations
+
+## Protected Files
+
+The following files should never be committed:
+
+
+.env
+
+credentials.json
+
+token.json
+
+*.pkl
+
+
+These may contain:
+
+- API keys
+- OAuth credentials
+- Authentication tokens
+- Machine learning models
+
+
+---
+
+# Production Improvements
+
+Future production enhancements:
+
+## 1. Database Storage
+
+Replace CSV storage with:
+
+- PostgreSQL
+- MongoDB
+- Firebase
+
+
+Benefits:
+
+- Search capability
+- Historical analytics
+- Multi-user support
+
+
+---
+
+## 2. Email Reply Generation
+
+Use Gemini to automatically draft responses.
+
+Example:
+
+Customer:
+
+
+My package never arrived.
+
+
+AI Draft:
+
+
+Hello John,
+
+We apologize for the delay.
+We have started an investigation and will update you within 24 hours.
+
+Thank you.
+
+
+---
+
+## 3. Human-in-the-loop Review
+
+For high-risk emails:
+
+
+Customer threatens legal action
+|
+|
+Gemini Detection
+|
+|
+Human Approval
+|
+|
+Send Response
+
+
+---
+
+## 4. Vector Database Integration
+
+Store email embeddings using:
+
+- FAISS
+- ChromaDB
+- Pinecone
+
+
+Benefits:
+
+- Similar email search
+- Knowledge retrieval
+- Faster customer support
+
+
+---
+
+## 5. RAG Architecture
+
+Future architecture:
+
+
+Customer Email
+
+   |
+
+Embedding Creation
+
+   |
+
+Vector Database
+
+   |
+
+Retrieve Company Policies
+
+   |
+
+Gemini LLM
+
+   |
+
+Accurate Response
+
+
+---
+
+## 6. Agentic AI Support Agent
+
+Future version:
+
+AI Agent can:
+
+- Read email
+- Classify request
+- Check order database
+- Validate refund policy
+- Create refund ticket
+- Reply to customer
+- Update CRM
+
+
+---
+
+# Project Learnings
+
+Through this project, the following AI engineering concepts were implemented:
+
+## Generative AI
+
+- Prompt engineering
+- Structured JSON output
+- Gemini API integration
+- LLM-based classification
+
+
+## Machine Learning
+
+- Text preprocessing
+- TF-IDF vectorization
+- Logistic Regression
+- Word embeddings
+- Model evaluation
+
+
+## NLP
+
+- Text classification
+- Semantic similarity
+- Feature extraction
+- Intent detection
+
+
+## Cloud APIs
+
+- Gmail API
+- OAuth2 authentication
+- Secure API integration
+
+
+## Software Engineering
+
+- Modular Python architecture
+- Environment configuration
+- Error handling
+- Automated testing
+- Dashboard development
+
+
+---
+
+# Resume Project Description
+
+## Customer Refund Request Classifier — AI Email Automation Platform
+
+Built an AI-powered customer support automation system using Python, Gmail API, Google Gemini, and Machine Learning.
+
+Implemented a hybrid classification architecture combining TF-IDF/Logistic Regression models with Gemini LLM fallback for intelligent email understanding.
+
+Developed an automated pipeline that:
+
+- Fetches customer emails using Gmail API OAuth2
+- Classifies requests into refund, return, exchange, complaint categories
+- Detects urgency and chargeback risk
+- Generates structured JSON responses
+- Applies Gmail labels automatically
+- Exports analytics data
+- Provides a Streamlit dashboard
+
+
+Technologies:
+
+
+Python
+Google Gemini API
+Gmail API
+Scikit-learn
+TF-IDF
+Word2Vec
+Pandas
+Streamlit
+OAuth2
+
+
+---
+
+# Time Estimate
+
+| Mode | Time |
+|---|---|
+| Beginner Implementation | 12–16 hours |
+| AI Developer Implementation | 6–10 hours |
+| Production Version | Multiple weeks |
+
+
+---
+
+# Conclusion
+
+This project demonstrates a practical enterprise AI workflow:
+
+
+Real Customer Emails
+
+    |
+
+Data Extraction
+
+    |
+
+Machine Learning Classification
+
+    |
+
+Generative AI Reasoning
+
+    |
+
+Automation
+
+    |
+
+Business Dashboard
+
+
+It combines traditional Machine Learning and modern Generative AI techniques to solve a real customer support automation problem.
