@@ -1,0 +1,6 @@
+#!/Users/ashoknrg/AI/KKRGENAI/Level1/Level-1-Beginner-AI-Projects-Phase-3-main/Customer-Refund-Request-classification/venv/bin/python3.12
+import sys
+from httpx import main
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(main())
