@@ -1,0 +1,18 @@
+{
+  "AAPL": {
+    "overall_sentiment": "Bullish","total_articles": 1,"bullish_count":1,"bearish_count":0,"neutral_count":0,"mixed_count":0,
+    "articles": [{"ticker":"AAPL","title":"Apple Reports Record Services Revenue","source":"FT",
+      "published_at":"2024-05-01T09:00:00Z","url":"https://example.com","description":"Apple Q2 services revenue hit $23.9B.",
+      "summary":"Apple posted record services revenue beating analyst expectations. Growth driven by App Store and iCloud.","sentiment":"Bullish",
+      "sentiment_reasoning":"Record beat with raised guidance signals strong momentum.",
+      "key_facts":["$23.9B services revenue","Beat consensus by 4%","Guidance raised"],"market_impact":"short-term"}]
+  },
+  "TSLA": {
+    "overall_sentiment": "Mixed","total_articles": 1,"bullish_count":0,"bearish_count":0,"neutral_count":0,"mixed_count":1,
+    "articles": [{"ticker":"TSLA","title":"Tesla Misses Deliveries But Announces Affordable Model","source":"Reuters",
+      "published_at":"2024-04-30T14:00:00Z","url":"https://example.com","description":"386,810 Q1 deliveries vs 449,000 expected.",
+      "summary":"Tesla missed delivery estimates but announced a new affordable model for 2025. Shares recovered after initial drop.","sentiment":"Mixed",
+      "sentiment_reasoning":"Delivery miss is bearish but new model is a long-term bullish catalyst.",
+      "key_facts":["386,810 Q1 deliveries","Missed 449,000 estimate","New model 2025"],"market_impact":"long-term"}]
+  }
+}
